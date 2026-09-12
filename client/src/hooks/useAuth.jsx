@@ -58,10 +58,15 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           const response = await authService.getProfile()
+          const userData = response.data.user
+          const virtualBalance = (userData?.virtualBalance !== undefined && userData?.virtualBalance !== null)
+            ? userData.virtualBalance
+            : (typeof userData?.balance === 'number' ? userData.balance : 10000)
+          const user = { ...userData, virtualBalance, balance: virtualBalance }
           dispatch({
             type: 'AUTH_SUCCESS',
             payload: {
-              user: response.data.user,
+              user,
               token
             }
           })
@@ -83,7 +88,11 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'AUTH_START' })
       
       const response = await authService.login({ email, password })
-      const { user, token } = response.data
+      const { user: rawUser, token } = response.data
+      const virtualBalance = (rawUser?.virtualBalance !== undefined && rawUser?.virtualBalance !== null)
+        ? rawUser.virtualBalance
+        : (typeof rawUser?.balance === 'number' ? rawUser.balance : 10000)
+      const user = { ...rawUser, virtualBalance, balance: virtualBalance }
       
       localStorage.setItem('token', token)
       
@@ -104,7 +113,11 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'AUTH_START' })
       
       const response = await authService.register(userData)
-      const { user, token } = response.data
+      const { user: rawUser, token } = response.data
+      const virtualBalance = (rawUser?.virtualBalance !== undefined && rawUser?.virtualBalance !== null)
+        ? rawUser.virtualBalance
+        : (typeof rawUser?.balance === 'number' ? rawUser.balance : 10000)
+      const user = { ...rawUser, virtualBalance, balance: virtualBalance }
       
       localStorage.setItem('token', token)
       
@@ -124,7 +137,11 @@ export const AuthProvider = ({ children }) => {
     try {
       dispatch({ type: 'AUTH_START' })
       const response = await authService.demoLogin()
-      const { user, token } = response.data
+      const { user: rawUser, token } = response.data
+      const virtualBalance = (rawUser?.virtualBalance !== undefined && rawUser?.virtualBalance !== null)
+        ? rawUser.virtualBalance
+        : (typeof rawUser?.balance === 'number' ? rawUser.balance : 10000)
+      const user = { ...rawUser, virtualBalance, balance: virtualBalance }
       localStorage.setItem('token', token)
       dispatch({
         type: 'AUTH_SUCCESS',
@@ -155,13 +172,22 @@ export const AuthProvider = ({ children }) => {
         type: 'UPDATE_USER',
         payload: { virtualBalance: newBalance, balance: newBalance }
       })
+      try {
+        await authService.updateProfile({ virtualBalance: newBalance })
+      } catch (err) {
+        console.warn('Sync virtual balance to DB:', err.message)
+      }
     } else {
       try {
         const response = await authService.getProfile()
         if (response.data?.user) {
+          const u = response.data.user
+          const bal = (u.virtualBalance !== undefined && u.virtualBalance !== null)
+            ? u.virtualBalance
+            : (typeof u.balance === 'number' ? u.balance : 10000)
           dispatch({
             type: 'UPDATE_USER',
-            payload: response.data.user
+            payload: { ...u, virtualBalance: bal, balance: bal }
           })
         }
       } catch (err) {

@@ -54,12 +54,12 @@ export const register = async (req, res) => {
       })
     }
 
-    // Create new user
+    // Create new user with starting ₹10,000 virtual balance
     const user = new User({
       username,
       email,
       password,
-      virtualBalance: 10000 // Starting balance
+      virtualBalance: 10000 // Starting balance ₹10,000
     })
 
     await user.save()
@@ -160,6 +160,12 @@ export const getProfile = async (req, res) => {
       })
     }
 
+    // Ensure starting balance of ₹10,000 if not set or legacy 0 with no investments
+    if (user.virtualBalance === undefined || user.virtualBalance === null || (user.virtualBalance === 0 && (!user.totalInvested || user.totalInvested === 0))) {
+      user.virtualBalance = 10000
+      await user.save()
+    }
+
     // Calculate portfolio stats
     const portfolioValue = await user.getPortfolioValue()
     const totalPnL = await user.getTotalPnL()
@@ -186,7 +192,7 @@ export const getProfile = async (req, res) => {
 // Update user profile
 export const updateProfile = async (req, res) => {
   try {
-    const allowedUpdates = ['username']
+    const allowedUpdates = ['username', 'virtualBalance']
     const updates = {}
     
     // Filter allowed updates
@@ -263,8 +269,11 @@ export const demoLogin = async (req, res) => {
         username: 'pazhampro',
         email: 'pazhampro@gmail.com',
         password: 'password123',
-        virtualBalance: 25000
+        virtualBalance: 10000
       })
+      await user.save()
+    } else if (user.virtualBalance === undefined || user.virtualBalance === null || (user.virtualBalance === 0 && (!user.totalInvested || user.totalInvested === 0))) {
+      user.virtualBalance = 10000
       await user.save()
     }
     const token = generateToken(user._id)

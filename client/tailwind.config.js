@@ -26,6 +26,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        brand: ['"Anek Malayalam"', 'Inter', 'system-ui', 'sans-serif'],
       },
       animation: {
         'pulse-slow': 'pulse 3s ease-in-out infinite',

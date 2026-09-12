@@ -57,8 +57,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 5000, // allow active real-time updates and multiple user testing
+  skip: (req) => process.env.NODE_ENV === 'development' || req.ip === '127.0.0.1' || req.ip === '::1',
   message: {
     error: 'Too many requests from this IP, please try again later.',
     code: 'RATE_LIMIT_EXCEEDED'
@@ -66,10 +67,11 @@ const limiter = rateLimit({
 })
 app.use('/api/', limiter)
 
-// Trading rate limit (more restrictive)
+// Trading rate limit
 const tradingLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 10, // limit each IP to 10 trading requests per minute
+  windowMs: 1 * 60 * 1000,
+  max: 300, // allow rapid continuous trading
+  skip: (req) => process.env.NODE_ENV === 'development' || req.ip === '127.0.0.1' || req.ip === '::1',
   message: {
     error: 'Eda, kooduthal trading cheyyalle! Try again in a minute.',
     code: 'TRADING_RATE_LIMIT'

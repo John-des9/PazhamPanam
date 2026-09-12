@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,6 +12,11 @@
   body {
     @apply bg-gray-50 text-gray-900;
   }
+}
+
+.font-brand {
+  font-family: 'Anek Malayalam', 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
 @layer components {
@@ -58,6 +65,58 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Clean White + Banana Yellow Theme Background with subtle repeating banana pattern */
+  .banana-market-bg {
+    background-color: #faf8f5;
+    background-image: 
+      linear-gradient(rgba(253, 252, 248, 0.94), rgba(254, 252, 243, 0.94)),
+      url('/images/banana-pattern.jpg');
+    background-repeat: repeat;
+    background-size: 380px 210px;
+    background-attachment: fixed;
+  }
+
+  /* Soft card banana texture */
+  .banana-card-pattern {
+    background-color: #ffffff;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.97), rgba(254, 252, 232, 0.96)),
+      url('/images/banana-pattern.jpg');
+    background-repeat: repeat;
+    background-size: 320px 180px;
+  }
+
+  /* Trading Terminal Desk with subtle banana pattern texture overlay (kept for backwards compatibility) */
+  .trading-desk-bg {
+    background-color: #0b0f17;
+    background-image: 
+      radial-gradient(ellipse at 50% 30%, rgba(13, 18, 28, 0.88) 0%, rgba(8, 11, 17, 0.96) 100%),
+      url('/images/banana-pattern.jpg');
+    background-repeat: repeat;
+    background-size: 360px 200px;
+    background-attachment: fixed;
+  }
+
+  /* Bloomberg-style scrolling ticker */
+  @keyframes ticker {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-ticker {
+    display: flex;
+    width: max-content;
+    animation: ticker 32s linear infinite;
+  }
+
+  .animate-ticker:hover {
+    animation-play-state: paused;
+  }
   
   .animate-price-up {
     animation: priceUp 0.5s ease-in-out;
@@ -66,16 +125,197 @@
   .animate-price-down {
     animation: priceDown 0.5s ease-in-out;
   }
+
+  /* ======================================================== */
+  /* SUBTLE BANANA-THEMED ANIMATION SYSTEM                    */
+  /* ======================================================== */
+
+  /* 1. Hanging Banana String / Peel Sway */
+  @keyframes bananaStringSway {
+    0% {
+      transform: rotate(-6deg);
+    }
+    100% {
+      transform: rotate(6deg);
+    }
+  }
+
+  .animate-banana-string {
+    transform-origin: top center;
+    animation: bananaStringSway 2.4s ease-in-out infinite alternate;
+  }
+
+  /* 2. Banana Peel Opening */
+  @keyframes peelLeftFlap {
+    0% {
+      transform: rotate(0deg) translate(0, 0);
+    }
+    60% {
+      transform: rotate(-55deg) translate(-3px, 9px);
+    }
+    80% {
+      transform: rotate(-48deg) translate(-2.5px, 8px);
+    }
+    100% {
+      transform: rotate(-52deg) translate(-3px, 8.5px);
+    }
+  }
+
+  @keyframes peelRightFlap {
+    0% {
+      transform: rotate(0deg) translate(0, 0);
+    }
+    60% {
+      transform: rotate(55deg) translate(3px, 9px);
+    }
+    80% {
+      transform: rotate(48deg) translate(2.5px, 8px);
+    }
+    100% {
+      transform: rotate(52deg) translate(3px, 8.5px);
+    }
+  }
+
+  .peel-flap-left {
+    transform-origin: top left;
+    animation: peelLeftFlap 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .peel-flap-right {
+    transform-origin: top right;
+    animation: peelRightFlap 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* 3. Banana Slip & Wobble (Loss reaction) */
+  @keyframes bananaSlip {
+    0% {
+      transform: rotate(0deg) translateY(0);
+    }
+    20% {
+      transform: rotate(-14deg) translateY(3px);
+    }
+    40% {
+      transform: rotate(9deg) translateY(1px);
+    }
+    65% {
+      transform: rotate(-4deg) translateY(0);
+    }
+    85% {
+      transform: rotate(2deg) translateY(0);
+    }
+    100% {
+      transform: rotate(0deg) translateY(0);
+    }
+  }
+
+  .animate-banana-slip {
+    animation: bananaSlip 1.2s ease-in-out;
+  }
+
+  /* 4. Banana Celebratory Profit Bounce */
+  @keyframes bananaProfitBounce {
+    0% {
+      transform: scale(1) translateY(0);
+    }
+    30% {
+      transform: scale(1.1) translateY(-10px);
+    }
+    55% {
+      transform: scale(0.96) translateY(2px);
+    }
+    75% {
+      transform: scale(1.03) translateY(-3px);
+    }
+    100% {
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .animate-profit-bounce {
+    animation: bananaProfitBounce 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* 5. Floating Banana Micro-Particles */
+  @keyframes bananaParticleFloat {
+    0% {
+      opacity: 0.9;
+      transform: translateY(0) scale(0.8) rotate(0deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-40px) scale(1.15) rotate(35deg);
+    }
+  }
+
+  .animate-banana-particle {
+    animation: bananaParticleFloat 1.6s ease-out forwards;
+  }
+
+  /* 6. Ticker Price Pulse (Subtle upward/downward movement on change) */
+  @keyframes tickerNudgeUp {
+    0% {
+      transform: translateY(0);
+      background-color: transparent;
+    }
+    25% {
+      transform: translateY(-2px);
+      background-color: rgba(16, 185, 129, 0.18);
+    }
+    100% {
+      transform: translateY(0);
+      background-color: transparent;
+    }
+  }
+
+  @keyframes tickerNudgeDown {
+    0% {
+      transform: translateY(0);
+      background-color: transparent;
+    }
+    25% {
+      transform: translateY(2px);
+      background-color: rgba(244, 63, 94, 0.18);
+    }
+    100% {
+      transform: translateY(0);
+      background-color: transparent;
+    }
+  }
+
+  .ticker-nudge-up {
+    animation: tickerNudgeUp 0.85s ease-out;
+  }
+
+  .ticker-nudge-down {
+    animation: tickerNudgeDown 0.85s ease-out;
+  }
+
+  /* 7. Banana Loader Bobbing & Rotating */
+  @keyframes bananaLoaderBob {
+    0% {
+      transform: translateY(0) rotate(-6deg);
+    }
+    50% {
+      transform: translateY(-8px) rotate(6deg);
+    }
+    100% {
+      transform: translateY(0) rotate(-6deg);
+    }
+  }
+
+  .animate-banana-loader {
+    animation: bananaLoaderBob 1.8s ease-in-out infinite;
+  }
 }
 
 @keyframes priceUp {
-  0% { @apply bg-green-100; }
-  100% { @apply bg-transparent; }
+  0% { background-color: rgba(16, 185, 129, 0.2); }
+  100% { background-color: transparent; }
 }
 
 @keyframes priceDown {
-  0% { @apply bg-red-100; }
-  100% { @apply bg-transparent; }
+  0% { background-color: rgba(239, 68, 68, 0.2); }
+  100% { background-color: transparent; }
 }
 
 /* Custom scrollbar */

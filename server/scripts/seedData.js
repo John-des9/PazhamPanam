@@ -22,11 +22,11 @@ const bananaData = [
     volatility: 'medium'
   },
   {
-    name: 'Njalipoovan',
+    name: 'Matti',
     symbol: 'NJP',
-    fullName: 'Njalipoovan Traditional',
+    fullName: 'Matti Aromatic Sweet',
     description: 'Traditional Kerala banana with distinctive sweet flavor and cultural significance. A staple in Kerala households for generations.',
-    image: '/images/bananas/njalipoovan.jpg',
+    image: '/images/bananas/matti.jpg',
     currentPrice: 95.20,
     category: 'traditional',
     origin: 'Palakkad',
@@ -61,11 +61,11 @@ const bananaData = [
     volatility: 'high'
   },
   {
-    name: 'Rasthali',
+    name: 'Rasakadali',
     symbol: 'RST',
-    fullName: 'Rasthali Deluxe',
+    fullName: 'Rasakadali Heirloom',
     description: 'Aromatic banana variety prized for its unique fragrance and taste profile. Often used in religious ceremonies.',
-    image: '/images/bananas/rasthali.jpg',
+    image: '/images/bananas/rasakadali.jpg',
     currentPrice: 89.50,
     category: 'aromatic',
     origin: 'Kottayam',
@@ -89,7 +89,7 @@ const bananaData = [
   {
     name: 'Nendran',
     symbol: 'NEN',
-    fullName: 'Nendran Royal',
+    fullName: 'Nendran Royal Spot',
     description: 'The king of Kerala bananas! Large, yellow variety perfect for chips and traditional recipes. A cultural icon.',
     image: '/images/bananas/nendran.jpg',
     currentPrice: 156.30,
@@ -100,11 +100,11 @@ const bananaData = [
     volatility: 'low'
   },
   {
-    name: 'Malbhog',
+    name: 'Chenkadali',
     symbol: 'MAL',
-    fullName: 'Malbhog Elite',
+    fullName: 'Chenkadali Red King',
     description: 'Exotic banana variety with creamy texture and rich flavor. Considered a delicacy in traditional Kerala cuisine.',
-    image: '/images/bananas/malbhog.jpg',
+    image: '/images/bananas/chenkadali.jpg',
     currentPrice: 134.75,
     category: 'premium',
     origin: 'Wayanad',
@@ -119,13 +119,13 @@ const defaultUsers = [
     username: 'pazhampro',
     email: 'pazhampro@gmail.com',
     password: 'password123',
-    virtualBalance: 15000
+    virtualBalance: 10000
   },
   {
     username: 'bananatrade',
     email: 'banana@trade.com',
     password: 'password123',
-    virtualBalance: 25000
+    virtualBalance: 10000
   }
 ]
 

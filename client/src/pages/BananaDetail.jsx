@@ -9,6 +9,7 @@ import PriceChart from '../components/PriceChart'
 import CandlestickChart from '../components/CandlestickChart'
 import VolumeChart from '../components/VolumeChart'
 import QuickTradeModal from '../components/QuickTradeModal'
+import LiveBananaChart from '../components/LiveBananaChart'
 
 const BananaDetail = () => {
   const { symbol } = useParams()
@@ -147,7 +148,10 @@ const BananaDetail = () => {
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.target.onerror = null
-                    e.target.src = '/banana-logo.svg'
+                    const fallback = `/images/bananas/${banana?.name?.toLowerCase()}.jpg`
+                    if (e.target.src !== fallback) {
+                      e.target.src = fallback
+                    }
                   }}
                 />
               </div>
@@ -176,9 +180,10 @@ const BananaDetail = () => {
 
             {/* Live Price & Trade Action CTA */}
             <div className="flex flex-col sm:items-end justify-center border-t sm:border-t-0 pt-4 sm:pt-0">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Market Price</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Spot Price / KG</span>
               <div className="text-3xl sm:text-4xl font-black font-mono text-slate-900 my-1">
-                ₹{Number(currentPrice).toFixed(2)}
+                ₹{Number(currentPrice).toFixed(2)}{' '}
+                <span className="text-sm font-sans text-slate-500 font-normal">/ KG</span>
               </div>
               <div className={`flex items-center text-sm font-bold ${
                 isPositive ? 'text-emerald-600' : 'text-rose-600'
@@ -274,11 +279,12 @@ const BananaDetail = () => {
                 banana={banana}
               />
             ) : (
-              <PriceChart
-                data={historyData}
-                timeframe={timeframe}
-                onTimeframeChange={setTimeframe}
+              <LiveBananaChart
                 banana={banana}
+                height={320}
+                showHeader={false}
+                currentPrice={currentPrice}
+                percentageChange={percentageChange}
               />
             )}
           </div>
@@ -294,7 +300,7 @@ const BananaDetail = () => {
                 Your {banana?.name} Holdings
               </h3>
               <span className="text-xs font-mono font-semibold bg-banana-100 text-banana-800 px-2.5 py-1 rounded-full">
-                {ownedUnits} Units Owned
+                {ownedUnits} KG Owned
               </span>
             </div>
 
@@ -304,7 +310,7 @@ const BananaDetail = () => {
                   <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
                     <span className="text-xs text-slate-400 font-semibold uppercase block">Average Purchase Price</span>
                     <span className="text-xl font-black font-mono text-slate-900 mt-1 block">
-                      ₹{avgBuyPrice.toFixed(2)}
+                      ₹{avgBuyPrice.toFixed(2)} / KG
                     </span>
                   </div>
 
@@ -344,7 +350,7 @@ const BananaDetail = () => {
                   onClick={() => handleOpenTrade('buy')}
                   className="px-5 py-2.5 bg-banana-500 font-bold text-xs text-slate-950 rounded-xl hover:bg-banana-600 transition-colors"
                 >
-                  Buy First {banana?.symbol} 🍌
+                  Buy First {banana?.symbol} (KG) 🍌
                 </button>
               </div>
             )}
@@ -360,19 +366,19 @@ const BananaDetail = () => {
               <div className="py-2.5 flex justify-between items-center">
                 <span className="text-slate-500">24h High</span>
                 <span className="font-mono font-bold text-slate-900">
-                  ₹{(currentPrice * 1.05).toFixed(2)}
+                  ₹{(currentPrice * 1.05).toFixed(2)} / KG
                 </span>
               </div>
               <div className="py-2.5 flex justify-between items-center">
                 <span className="text-slate-500">24h Low</span>
                 <span className="font-mono font-bold text-slate-900">
-                  ₹{(currentPrice * 0.95).toFixed(2)}
+                  ₹{(currentPrice * 0.95).toFixed(2)} / KG
                 </span>
               </div>
               <div className="py-2.5 flex justify-between items-center">
                 <span className="text-slate-500">24h Volume</span>
                 <span className="font-mono font-bold text-slate-900">
-                  {(banana?.volume24h || 1250).toLocaleString('en-IN')} units
+                  {(banana?.volume24h || 1250).toLocaleString('en-IN')} KG
                 </span>
               </div>
               <div className="py-2.5 flex justify-between items-center">

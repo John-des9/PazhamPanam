@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowUpRight, ArrowDownRight, Clock, Filter, ShoppingCart, DollarSign, Calendar, Search } from 'lucide-react'
 import { tradingService } from '../services/api'
 import { useAuth } from '../hooks/useAuth'
+import BananaLoader from '../components/BananaLoader'
 
 const Activity = () => {
   const { isAuthenticated, demoLogin } = useAuth()
@@ -122,11 +123,11 @@ const Activity = () => {
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Total Units Traded</span>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Total Volume Traded (KG)</span>
             <span className="text-2xl lg:text-3xl font-black font-mono text-banana-600 my-1 block">
-              {totalVolume.toLocaleString('en-IN')}
+              {totalVolume.toLocaleString('en-IN')} KG
             </span>
-            <span className="text-xs text-slate-500">Bananas exchanged</span>
+            <span className="text-xs text-slate-500">KG exchanged</span>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
@@ -183,10 +184,7 @@ const Activity = () => {
         {/* Activity Table */}
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
           {loading ? (
-            <div className="p-16 text-center text-slate-500">
-              <div className="w-8 h-8 border-4 border-banana-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-              <span>Fetching trading records...</span>
-            </div>
+            <BananaLoader text="Fetching trading records..." />
           ) : filteredTransactions.length === 0 ? (
             <div className="py-20 px-4 text-center">
               <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3 text-slate-400">
@@ -214,8 +212,8 @@ const Activity = () => {
                     <th className="py-3.5 px-6">Date & Time</th>
                     <th className="py-3.5 px-6">Variety</th>
                     <th className="py-3.5 px-4">Action</th>
-                    <th className="py-3.5 px-4">Quantity</th>
-                    <th className="py-3.5 px-4">Execution Price</th>
+                    <th className="py-3.5 px-4">Quantity (KG)</th>
+                    <th className="py-3.5 px-4">Execution (₹/KG)</th>
                     <th className="py-3.5 px-4">Total ₹ Value</th>
                     <th className="py-3.5 px-6 text-right">Balance After</th>
                   </tr>
@@ -239,9 +237,7 @@ const Activity = () => {
                       <tr key={tx.id || tx._id} className="hover:bg-slate-50/60 transition-colors">
                         {/* Timestamp */}
                         <td className="py-4 px-6">
-                          <div className="font-medium text-slate-800 text-xs">
-                            {dateStr}
-                          </div>
+                          <span className="font-mono font-medium text-slate-900 block">{dateStr}</span>
                           <div className="text-[11px] text-slate-400 flex items-center space-x-1 mt-0.5">
                             <Clock className="w-3 h-3" />
                             <span>{timeStr}</span>
@@ -258,24 +254,30 @@ const Activity = () => {
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
                                   e.target.onerror = null
-                                  e.target.src = '/banana-logo.svg'
+                                  const fallback = `/images/bananas/${tx.banana?.name?.toLowerCase()}.jpg`
+                                  if (e.target.src !== fallback) {
+                                    e.target.src = fallback
+                                  }
                                 }}
                               />
                             </div>
                             <div>
-                              <span className="font-bold text-slate-900 block leading-tight">
-                                {tx.banana?.name || 'Banana'}
-                              </span>
-                              <span className="text-[11px] font-mono text-slate-400 font-semibold">
+                              <Link
+                                to={`/banana/${tx.banana?.symbol}`}
+                                className="font-bold text-slate-900 hover:text-banana-600 transition-colors"
+                              >
+                                {tx.banana?.name}
+                              </Link>
+                              <span className="block text-xs font-mono text-slate-400 font-semibold">
                                 {tx.banana?.symbol}
                               </span>
                             </div>
                           </div>
                         </td>
 
-                        {/* Type Badge */}
+                        {/* Buy / Sell Badge */}
                         <td className="py-4 px-4">
-                          <span className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                          <span className={`inline-flex items-center space-x-1 text-xs font-black uppercase px-2.5 py-1 rounded-md font-mono ${
                             isBuy 
                               ? 'bg-emerald-100 text-emerald-800' 
                               : 'bg-rose-100 text-rose-800'
@@ -289,14 +291,14 @@ const Activity = () => {
                           </span>
                         </td>
 
-                        {/* Units */}
+                        {/* Quantity (KG) */}
                         <td className="py-4 px-4 font-mono font-bold text-slate-900">
-                          {tx.quantity} units
+                          {tx.quantity} KG
                         </td>
 
-                        {/* Price */}
+                        {/* Price (₹/KG) */}
                         <td className="py-4 px-4 font-mono text-slate-700">
-                          ₹{Number(tx.price).toFixed(2)}
+                          ₹{Number(tx.price).toFixed(2)} / KG
                         </td>
 
                         {/* Total Value */}

@@ -40,7 +40,7 @@ const QuickTradeModal = ({ banana, isOpen, onClose, initialType = 'buy', onSucce
   const currentPrice = banana.currentPrice || 0
   const qtyNumber = Number(quantity) || 0
   const totalCost = qtyNumber * currentPrice
-  const userBalance = user?.virtualBalance !== undefined ? user.virtualBalance : (user?.balance || 10000)
+  const userBalance = user?.virtualBalance !== undefined ? user.virtualBalance : (user?.balance !== undefined ? user.balance : 10000)
   const ownedQuantity = userHolding?.quantity || 0
 
   const canAfford = tradeType === 'buy' ? userBalance >= totalCost : true
@@ -55,8 +55,8 @@ const QuickTradeModal = ({ banana, isOpen, onClose, initialType = 'buy', onSucce
   const handleQuickQty = (amount) => {
     if (amount === 'MAX') {
       if (tradeType === 'buy') {
-        const maxUnits = Math.max(1, Math.floor(userBalance / currentPrice))
-        setQuantity(maxUnits)
+        const maxKg = Math.max(1, Math.floor(userBalance / currentPrice))
+        setQuantity(maxKg)
       } else {
         setQuantity(Math.max(1, ownedQuantity))
       }
@@ -76,18 +76,18 @@ const QuickTradeModal = ({ banana, isOpen, onClose, initialType = 'buy', onSucce
       return
     }
 
-    if (qtyNumber <= 0) {
-      setErrorMsg('Quantity 1-il kooduthal venam bro!')
+    if (!qtyNumber || isNaN(qtyNumber) || qtyNumber <= 0) {
+      setErrorMsg('Sariyaaya quantity enter cheyyu mone! (> 0 KG)')
       return
     }
 
     if (tradeType === 'buy' && !canAfford) {
-      setErrorMsg('Paisa theernu bro! Balance nokkiyittu vaa da 😭')
+      setErrorMsg('Paisa illa mone 😭 Balance kuravaanu.')
       return
     }
 
     if (tradeType === 'sell' && !canSell) {
-      setErrorMsg(`Eda, ithra pazham ninte kayyil illa! You have only ${ownedQuantity} units.`)
+      setErrorMsg(`Eda, ithra pazham ninte kayyil illa! You have only ${ownedQuantity} KG.`)
       return
     }
 
@@ -115,7 +115,7 @@ const QuickTradeModal = ({ banana, isOpen, onClose, initialType = 'buy', onSucce
         await updateBalance()
       }
 
-      setSuccessMsg(res.data?.message || (tradeType === 'buy' ? 'Pazham vaangi da! 🍌' : 'Pazham vitteda! 💸'))
+      setSuccessMsg(res.data?.message || (tradeType === 'buy' ? 'ADICHU MONE! 🍌 Pazham vangiyeda!' : 'Pazham vitteda! 💸'))
       
       // Refresh holding count
       await fetchHolding()
@@ -157,7 +157,10 @@ const QuickTradeModal = ({ banana, isOpen, onClose, initialType = 'buy', onSucce
                 className="w-full h-full object-cover rounded-xl"
                 onError={(e) => {
                   e.target.onerror = null
-                  e.target.src = '/banana-logo.svg'
+                  const fallback = `/images/bananas/${banana.name?.toLowerCase()}.jpg`
+                  if (e.target.src !== fallback) {
+                    e.target.src = fallback
+                  }
                 }}
               />
             </div>
@@ -223,14 +226,14 @@ const QuickTradeModal = ({ banana, isOpen, onClose, initialType = 'buy', onSucce
             <span className="font-bold text-slate-900 font-mono">
               {tradeType === 'buy' 
                 ? `₹${Number(userBalance).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` 
-                : `${ownedQuantity} units`}
+                : `${ownedQuantity} KG`}
             </span>
           </div>
 
-          {/* Quantity Stepper */}
+          {/* Quantity Stepper (KG) */}
           <div>
             <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-              Banana Quantity (Units)
+              Banana Quantity (KG)
             </label>
             <div className="flex items-center space-x-3">
               <button
@@ -259,7 +262,7 @@ const QuickTradeModal = ({ banana, isOpen, onClose, initialType = 'buy', onSucce
               </button>
             </div>
 
-            {/* Quick Quantity Pills */}
+            {/* Quick Quantity Pills (KG) */}
             <div className="flex items-center space-x-2 mt-2.5">
               {[1, 5, 10, 25, 50, 'MAX'].map((pill) => (
                 <button
@@ -272,7 +275,7 @@ const QuickTradeModal = ({ banana, isOpen, onClose, initialType = 'buy', onSucce
                       : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
                   }`}
                 >
-                  {pill === 'MAX' ? 'MAX' : `+${pill}`}
+                  {pill === 'MAX' ? 'MAX' : `+${pill} KG`}
                 </button>
               ))}
             </div>
@@ -281,8 +284,8 @@ const QuickTradeModal = ({ banana, isOpen, onClose, initialType = 'buy', onSucce
           {/* Estimated Value & Summary */}
           <div className="p-3.5 bg-banana-50/50 border border-banana-200/60 rounded-2xl space-y-1.5">
             <div className="flex justify-between text-xs text-slate-600">
-              <span>Rate per unit</span>
-              <span className="font-mono font-medium">₹{Number(currentPrice).toFixed(2)}</span>
+              <span>Rate per KG</span>
+              <span className="font-mono font-medium">₹{Number(currentPrice).toFixed(2)} / KG</span>
             </div>
             <div className="flex justify-between text-xs text-slate-600">
               <span>Platform Fee (0%)</span>
@@ -329,7 +332,7 @@ const QuickTradeModal = ({ banana, isOpen, onClose, initialType = 'buy', onSucce
                 }}
                 className="w-full py-2.5 px-4 bg-slate-900 text-banana-400 font-bold text-xs rounded-xl hover:bg-slate-800 transition-colors"
               >
-                Instant Demo Login (₹25,000 Balance) 🍌
+                Instant Demo Login (₹10,000 Balance) 🍌
               </button>
             </div>
           )}

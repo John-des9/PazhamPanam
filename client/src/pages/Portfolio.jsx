@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useSocket } from '../hooks/useSocket'
 import { tradingService } from '../services/api'
 import QuickTradeModal from '../components/QuickTradeModal'
+import BananaLoader from '../components/BananaLoader'
 
 const Portfolio = () => {
   const { user, isAuthenticated, demoLogin } = useAuth()
@@ -96,7 +97,7 @@ const Portfolio = () => {
             }}
             className="w-full py-3.5 bg-banana-500 hover:bg-banana-600 text-slate-950 font-bold rounded-2xl shadow-lg transition-all"
           >
-            Access Instant Demo Portfolio (₹25,000) 💼
+            Access Instant Demo Portfolio 💼
           </button>
         </div>
       </div>
@@ -215,10 +216,7 @@ const Portfolio = () => {
           </div>
 
           {loading ? (
-            <div className="p-12 text-center text-slate-500">
-              <div className="w-8 h-8 border-4 border-banana-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-              <span>Loading your banana inventory...</span>
-            </div>
+            <BananaLoader text="Loading your banana inventory..." />
           ) : liveHoldings.length === 0 ? (
             /* Empty State */
             <div className="py-16 px-4 text-center">
@@ -246,9 +244,9 @@ const Portfolio = () => {
                 <thead>
                   <tr className="bg-slate-50/70 border-b border-slate-100 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
                     <th className="py-3.5 px-6">Variety</th>
-                    <th className="py-3.5 px-4">Holdings</th>
-                    <th className="py-3.5 px-4">Avg. Buy Price</th>
-                    <th className="py-3.5 px-4">Current Price</th>
+                    <th className="py-3.5 px-4">Holdings (KG)</th>
+                    <th className="py-3.5 px-4">Avg. Buy (₹/KG)</th>
+                    <th className="py-3.5 px-4">Current (₹/KG)</th>
                     <th className="py-3.5 px-4">Current Value</th>
                     <th className="py-3.5 px-4">Profit / Loss</th>
                     <th className="py-3.5 px-6 text-right">Action</th>
@@ -271,7 +269,10 @@ const Portfolio = () => {
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
                                   e.target.onerror = null
-                                  e.target.src = '/banana-logo.svg'
+                                  const fallback = `/images/bananas/${banana.name?.toLowerCase()}.jpg`
+                                  if (e.target.src !== fallback) {
+                                    e.target.src = fallback
+                                  }
                                 }}
                               />
                             </div>
@@ -289,19 +290,19 @@ const Portfolio = () => {
                           </div>
                         </td>
 
-                        {/* Quantity */}
+                        {/* Quantity (KG) */}
                         <td className="py-4 px-4 font-mono font-bold text-slate-800">
-                          {holding.quantity} units
+                          {holding.quantity} KG
                         </td>
 
                         {/* Avg Buy Price */}
                         <td className="py-4 px-4 font-mono text-slate-600">
-                          ₹{Number(holding.averageBuyPrice || 0).toFixed(2)}
+                          ₹{Number(holding.averageBuyPrice || 0).toFixed(2)} / KG
                         </td>
 
                         {/* Current Price */}
                         <td className="py-4 px-4 font-mono font-bold text-slate-900">
-                          ₹{Number(holding.livePrice || 0).toFixed(2)}
+                          ₹{Number(holding.livePrice || 0).toFixed(2)} / KG
                         </td>
 
                         {/* Current Value */}

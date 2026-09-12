@@ -28,16 +28,26 @@ api.interceptors.response.use(
     return response
   },
   (error) => {
-    // Handle 401 errors (unauthorized)
-    if (error.response?.status === 401) {
+    const isAuthUrl = error.config?.url?.includes('/auth/login') ||
+                      error.config?.url?.includes('/auth/register') ||
+                      error.config?.url?.includes('/auth/demo-login')
+
+    // Only redirect if session expired on a protected action, NOT during login attempts
+    if (error.response?.status === 401 && !isAuthUrl) {
       localStorage.removeItem('token')
-      window.location.href = '/'
+      if (window.location.pathname !== '/' && !window.location.pathname.startsWith('/#')) {
+        window.location.href = '/'
+      }
     }
     
-    // Return error with user-friendly message
-    const errorMessage = error.response?.data?.message || 
-                        error.response?.data?.error || 
-                        'Something went wrong! 😭'
+    // User-friendly Manglish error messages
+    let errorMessage = error.response?.data?.message || 
+                       error.response?.data?.error || 
+                       'Something went wrong da! 😭'
+    
+    if (error.response?.status === 401 && isAuthUrl) {
+      errorMessage = 'Login nadannilla mone. Details onnu check cheyyu.'
+    }
     
     return Promise.reject({
       ...error,

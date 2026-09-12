@@ -8,6 +8,7 @@ import { tradingService } from '../services/api'
 import BananaCard from '../components/BananaCard'
 import MarketSummary from '../components/MarketSummary'
 import QuickTradeModal from '../components/QuickTradeModal'
+import LiveChartModal from '../components/LiveChartModal'
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -16,6 +17,8 @@ const Dashboard = () => {
   const [showTradeModal, setShowTradeModal] = useState(false)
   const [selectedBanana, setSelectedBanana] = useState(null)
   const [portfolioStats, setPortfolioStats] = useState(null)
+  const [chartBanana, setChartBanana] = useState(null)
+  const [showChartModal, setShowChartModal] = useState(false)
 
   const { bananas, marketStats, marketMovers, loading, error, fetchBananas } = useMarket()
   const { connected, marketSentiment, priceUpdates } = useSocket()
@@ -84,10 +87,15 @@ const Dashboard = () => {
     setShowTradeModal(true)
   }
 
-  const userCash = user?.virtualBalance !== undefined ? user.virtualBalance : 25000
+  const handleViewChart = (banana) => {
+    setChartBanana(banana)
+    setShowChartModal(true)
+  }
+
+  const userCash = user?.virtualBalance !== undefined ? user.virtualBalance : 10000
   const portfolioVal = portfolioStats?.currentValue || 0
   const totalNetWorth = userCash + portfolioVal
-  const todaysPL = portfolioStats?.todaysPnL || (portfolioVal > 0 ? (portfolioVal * 0.024) : 284)
+  const todaysPL = portfolioStats?.todaysPnL || (portfolioVal > 0 ? (portfolioVal * 0.024) : 0)
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
@@ -112,7 +120,7 @@ const Dashboard = () => {
               {isAuthenticated ? `Welcome back, ${user?.username}!` : 'Kerala Banana Stock Market'}
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              {marketSentiment || 'Pazham Market Open aanu • Trade Kerala banana varieties in real-time'}
+              {marketSentiment || 'Pazham Market ON AANU • Trade Kerala banana varieties in real-time'}
             </p>
           </div>
 
@@ -128,7 +136,7 @@ const Dashboard = () => {
                 }}
                 className="py-2.5 px-5 bg-banana-500 hover:bg-banana-600 text-slate-950 font-bold text-sm rounded-xl shadow-md transition-all flex items-center space-x-2"
               >
-                <span>Instant Demo Login (₹25,000)</span>
+                <span>Instant Demo Login</span>
               </button>
             ) : (
               <Link
@@ -181,19 +189,19 @@ const Dashboard = () => {
               MARKET STATUS
             </span>
             <div className="flex items-center space-x-2 my-1">
-              <span className="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
+              <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
               <span className="text-xl font-black text-slate-900 tracking-wide">
-                🟢 RIPE
+                🟢 ON AANU
               </span>
             </div>
             <span className="text-xs text-emerald-700 font-semibold block">
-              Trading 100% Active
+              Market 24/7 Active
             </span>
           </div>
         </div>
 
         {/* Top Movers (Gainers & Losers) + Market Summary */}
-        <MarketSummary stats={marketStats} movers={marketMovers} bananas={bananas} />
+        <MarketSummary stats={marketStats} movers={marketMovers} bananas={bananas} onSelectBanana={handleViewChart} />
 
         {/* Filter and Search Bar */}
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -246,6 +254,7 @@ const Dashboard = () => {
               banana={banana}
               priceUpdate={priceUpdates[banana.symbol]}
               onQuickTrade={handleQuickTrade}
+              onViewChart={handleViewChart}
             />
           ))}
         </div>
@@ -270,6 +279,17 @@ const Dashboard = () => {
         )}
 
       </div>
+
+      {/* Live Chart Modal (Unified Reusable LiveBananaChart) */}
+      <LiveChartModal
+        isOpen={showChartModal}
+        onClose={() => {
+          setShowChartModal(false)
+          setChartBanana(null)
+        }}
+        banana={chartBanana}
+        onOpenTrade={handleQuickTrade}
+      />
 
       {/* Quick Trade Modal */}
       {showTradeModal && selectedBanana && (

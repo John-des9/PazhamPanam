@@ -1,8 +1,11 @@
 import React from 'react'
 import { TrendingUp, TrendingDown, Flame, BarChart3, Activity, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useMarketHours } from '../hooks/useMarketHours'
 
-const MarketSummary = ({ stats, movers, bananas = [] }) => {
+const MarketSummary = ({ stats, movers, bananas = [], onSelectBanana = null }) => {
+  const { isMarketOpen, currentTime, nextOpenText } = useMarketHours()
+
   // Derive live gainers and losers if not provided by stats
   const sortedByChange = [...bananas].sort((a, b) => (b.percentageChange || 0) - (a.percentageChange || 0))
   const topGainers = stats?.topGainers || sortedByChange.filter(b => (b.percentageChange || 0) >= 0).slice(0, 3)
@@ -20,9 +23,9 @@ const MarketSummary = ({ stats, movers, bananas = [] }) => {
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Pazham Exchange Overview
             </span>
-            <span className="flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-full">
+            <span className="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-bold rounded-full border bg-emerald-50 border-emerald-200 text-emerald-700">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>MARKET RIPE 🟢</span>
+              <span>🟢 ON AANU ({currentTime})</span>
             </span>
           </div>
 
@@ -39,7 +42,7 @@ const MarketSummary = ({ stats, movers, bananas = [] }) => {
 
         <div className="text-[11px] text-slate-400 mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
           <span>Kerala Agriculture Index (PAZHAM)</span>
-          <span className="text-banana-600 font-bold">100% Organically Tradable</span>
+          <span className="text-banana-600 font-bold">24/7 Spot Mandi</span>
         </div>
       </div>
 
@@ -53,40 +56,44 @@ const MarketSummary = ({ stats, movers, bananas = [] }) => {
                 Top Gainers
               </h3>
             </div>
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
               Bullish Pazham
             </span>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {topGainers.length > 0 ? (
-              topGainers.map((banana) => (
-                <Link
-                  key={banana._id || banana.symbol}
-                  to={`/banana/${banana.symbol}`}
-                  className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors group"
-                >
-                  <div className="flex items-center space-x-2.5">
-                    <span className="text-lg">🍌</span>
-                    <div>
-                      <span className="font-bold text-xs text-slate-800 group-hover:text-banana-600 transition-colors block leading-tight">
-                        {banana.name}
-                      </span>
-                      <span className="text-[10px] font-mono text-slate-400 font-semibold">
-                        {banana.symbol}
-                      </span>
+              topGainers.map((banana, index) => {
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🚀'
+                return (
+                  <button
+                    key={banana._id || banana.symbol}
+                    type="button"
+                    onClick={() => onSelectBanana && onSelectBanana(banana)}
+                    className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-amber-50/80 transition-colors group text-left cursor-pointer border border-transparent hover:border-amber-200"
+                  >
+                    <div className="flex items-center space-x-2.5">
+                      <span className="text-base">{medal}</span>
+                      <div>
+                        <span className="font-bold text-xs text-slate-800 group-hover:text-amber-600 transition-colors block leading-tight">
+                          {banana.name}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-400 font-semibold">
+                          {banana.symbol}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right font-mono">
-                    <div className="text-xs font-bold text-slate-900">
-                      ₹{Number(banana.currentPrice).toFixed(2)}
+                    <div className="text-right font-mono">
+                      <div className="text-xs font-bold text-slate-900">
+                        ₹{Number(banana.currentPrice).toFixed(2)}
+                      </div>
+                      <div className="text-[11px] font-bold text-emerald-600">
+                        +{Number(banana.percentageChange || 0).toFixed(2)}%
+                      </div>
                     </div>
-                    <div className="text-[11px] font-bold text-emerald-600">
-                      +{Number(banana.percentageChange || 0).toFixed(2)}%
-                    </div>
-                  </div>
-                </Link>
-              ))
+                  </button>
+                )
+              })
             ) : (
               <div className="text-center py-4 text-xs text-slate-400">All bananas stable</div>
             )}
@@ -109,23 +116,24 @@ const MarketSummary = ({ stats, movers, bananas = [] }) => {
                 Top Losers
               </h3>
             </div>
-            <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
               Dip Buying
             </span>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {topLosers.length > 0 ? (
               topLosers.map((banana) => (
-                <Link
+                <button
                   key={banana._id || banana.symbol}
-                  to={`/banana/${banana.symbol}`}
-                  className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors group"
+                  type="button"
+                  onClick={() => onSelectBanana && onSelectBanana(banana)}
+                  className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-rose-50/60 transition-colors group text-left cursor-pointer border border-transparent hover:border-rose-200"
                 >
                   <div className="flex items-center space-x-2.5">
-                    <span className="text-lg">🍌</span>
+                    <span className="text-base">📉</span>
                     <div>
-                      <span className="font-bold text-xs text-slate-800 group-hover:text-banana-600 transition-colors block leading-tight">
+                      <span className="font-bold text-xs text-slate-800 group-hover:text-rose-600 transition-colors block leading-tight">
                         {banana.name}
                       </span>
                       <span className="text-[10px] font-mono text-slate-400 font-semibold">
@@ -141,7 +149,7 @@ const MarketSummary = ({ stats, movers, bananas = [] }) => {
                       {Number(banana.percentageChange || 0).toFixed(2)}%
                     </div>
                   </div>
-                </Link>
+                </button>
               ))
             ) : (
               <div className="text-center py-4 text-xs text-slate-400">No bananas in negative</div>

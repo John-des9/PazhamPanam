@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
   },
   virtualBalance: {
     type: Number,
-    default: 10000, // Starting with ₹10,000
+    default: 10000, // ₹10,000 starting virtual balance
     min: 0
   },
   totalInvested: {
