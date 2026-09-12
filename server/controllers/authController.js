@@ -4,13 +4,12 @@ import Joi from 'joi'
 
 // Validation schemas
 const registerSchema = Joi.object({
-  username: Joi.string().alphanum().min(3).max(20).required()
+  username: Joi.string().min(3).max(30).trim().required()
     .messages({
-      'string.alphanum': 'Username should contain only letters and numbers',
       'string.min': 'Username should be at least 3 characters',
-      'string.max': 'Username should not exceed 20 characters'
+      'string.max': 'Username should not exceed 30 characters'
     }),
-  email: Joi.string().email().required()
+  email: Joi.string().email().trim().lowercase().required()
     .messages({
       'string.email': 'Please provide a valid email'
     }),
@@ -18,12 +17,12 @@ const registerSchema = Joi.object({
     .messages({
       'string.min': 'Password should be at least 6 characters'
     })
-})
+}).unknown(true)
 
 const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string().email().trim().lowercase().required(),
   password: Joi.string().required()
-})
+}).unknown(true)
 
 // Register new user
 export const register = async (req, res) => {
@@ -33,20 +32,25 @@ export const register = async (req, res) => {
     if (error) {
       return res.status(400).json({
         error: 'Validation error',
-        message: 'Details correct aano? 🤔',
+        message: error.details?.[0]?.message || 'Details correct aano? 🤔',
         details: error.details.map(detail => detail.message)
       })
     }
 
     const { username, email, password } = value
+    const normalizedEmail = email.toLowerCase().trim()
+    const normalizedUsername = username.trim()
 
     // Check if user already exists
     const existingUser = await User.findOne({
-      $or: [{ email }, { username }]
+      $or: [
+        { email: new RegExp(`^${normalizedEmail}$`, 'i') },
+        { username: new RegExp(`^${normalizedUsername}$`, 'i') }
+      ]
     })
 
     if (existingUser) {
-      const field = existingUser.email === email ? 'email' : 'username'
+      const field = existingUser.email?.toLowerCase() === normalizedEmail ? 'email' : 'username'
       return res.status(400).json({
         error: 'User already exists',
         message: `Ee ${field} already use cheyyunnundu da! 😅`,
@@ -56,8 +60,8 @@ export const register = async (req, res) => {
 
     // Create new user with starting ₹10,000 virtual balance
     const user = new User({
-      username,
-      email,
+      username: normalizedUsername,
+      email: normalizedEmail,
       password,
       virtualBalance: 10000 // Starting balance ₹10,000
     })
