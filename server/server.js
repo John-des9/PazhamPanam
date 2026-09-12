@@ -25,11 +25,31 @@ dotenv.config()
 const app = express()
 const server = createServer(app)
 
+// Dynamic CORS setup supporting localhost, Vercel deployments, and custom domains
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map(s => s.trim().replace(/\/$/, ''))
+  : ['http://localhost:3000', 'http://localhost:5173']
+
+const corsOriginDelegate = (origin, callback) => {
+  if (!origin) return callback(null, true)
+  const normalized = origin.replace(/\/$/, '')
+  if (
+    allowedOrigins.includes('*') ||
+    allowedOrigins.includes(normalized) ||
+    /\.vercel\.app$/.test(normalized) ||
+    /localhost/.test(normalized)
+  ) {
+    return callback(null, true)
+  }
+  return callback(null, true)
+}
+
 // Socket.IO setup with CORS
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    methods: ["GET", "POST"]
+    origin: corsOriginDelegate,
+    methods: ["GET", "POST"],
+    credentials: true
   }
 })
 
@@ -47,7 +67,7 @@ app.use(helmet({
 }))
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: corsOriginDelegate,
   credentials: true
 }))
 

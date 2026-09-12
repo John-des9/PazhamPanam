@@ -10,8 +10,8 @@ export const SocketProvider = ({ children }) => {
   const [marketSentiment, setMarketSentiment] = useState('Market loading...')
 
   useEffect(() => {
-    // Initialize socket connection
-    const serverUrl = import.meta.env?.VITE_SERVER_URL || 'http://localhost:5000'
+    const serverUrl = import.meta.env?.VITE_SERVER_URL || 
+      (import.meta.env?.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '') : 'http://localhost:5000')
     const newSocket = io(serverUrl, {
       transports: ['websocket', 'polling']
     })
